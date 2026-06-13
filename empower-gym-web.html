@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empower Gym — نظام الإدارة</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --red: #D42B2B;
+    --red-light: #FF3B3B;
+    --red-dark: #A81E1E;
+    --red-glow: rgba(212,43,43,0.35);
+    --dark: #0F0F0F;
+    --dark2: #1A1A1A;
+    --dark3: #242424;
+    --dark4: #2E2E2E;
+    --dark5: #383838;
+    --white: #FFFFFF;
+    --gray: #F5F5F5;
+    --text-main: #FFFFFF;
+    --text-muted: #888888;
+    --text-dim: #555555;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--dark);
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px; min-width: 240px;
+    background: var(--dark2);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+  .sidebar::before {
+    content:'';
+    position:absolute; top:-80px; right:-80px;
+    width:220px; height:220px;
+    background: radial-gradient(circle, rgba(212,43,43,0.12) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  .logo-area {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-box {
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-icon {
+    width:40px; height:40px;
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    box-shadow: 0 0 16px var(--red-glow);
+  }
+  .logo-text h1 { font-size:16px; font-weight:900; color:#fff; letter-spacing:1px; }
+  .logo-text span { font-size:9px; color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; }
+
+  .sidebar-nav {
+    flex:1; padding:14px 12px;
+    display:flex; flex-direction:column; gap:2px;
+    overflow-y:auto;
+  }
+  .nav-label {
+    font-size:9px; font-weight:700; color:var(--text-dim);
+    letter-spacing:2px; text-transform:uppercase;
+    padding:14px 8px 6px;
+  }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:8px;
+    cursor:pointer; transition:all 0.15s;
+    color:var(--text-muted); font-size:13px; font-weight:500;
+    user-select:none;
+  }
+  .nav-item:hover { background:var(--dark3); color:#fff; }
+  .nav-item.active {
+    background: linear-gradient(90deg, var(--red) 0%, var(--red-dark) 100%);
+    color:#fff;
+    box-shadow: 0 3px 12px var(--red-glow);
+  }
+  .nav-item .icon { font-size:14px; width:18px; text-align:center; }
+  .nav-item .badge {
+    margin-right:auto;
+    background:rgba(212,43,43,0.25); color:var(--red-light);
+    font-size:9px; font-weight:700;
+    padding:2px 7px; border-radius:20px;
+  }
+  .nav-item.active .badge { background:rgba(255,255,255,0.2); color:#fff; }
+
+  .sidebar-footer {
+    padding:14px 12px;
+    border-top:1px solid var(--border);
+  }
+  .admin-card {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; background:var(--dark3);
+    border-radius:10px; cursor:pointer;
+  }
+  .admin-av {
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg,var(--red),var(--red-dark));
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:#fff; font-weight:700;
+    box-shadow:0 0 10px var(--red-glow);
+  }
+  .admin-info h4 { font-size:12px; font-weight:600; color:#fff; }
+  .admin-info span { font-size:10px; color:var(--text-muted); }
+
+  /* ── MAIN ── */
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+  .topbar {
+    background:var(--dark2);
+    padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    min-height:64px;
+  }
+  .topbar-title h2 { font-size:17px; font-weight:700; }
+  .topbar-title p { font-size:11px; color:var(--text-muted); margin-top:1px; }
+  .topbar-actions { display:flex; align-items:center; gap:10px; }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 16px; border-radius:8px; border:none;
+    font-family:'Cairo',sans-serif; font-size:12px; font-weight:600;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .btn-primary {
+    background:linear-gradient(90deg,var(--red) 0%,var(--red-dark) 100%);
+    color:#fff; box-shadow:0 3px 10px var(--red-glow);
+  }
+  .btn-primary:hover { transform:translateY(-1px); box-shadow:0 5px 16px var(--red-glow); }
+  .btn-outline {
+    background:transparent; border:1px solid var(--dark5);
+    color:var(--text-muted);
+  }
+  .btn-outline:hover { border-color:var(--red); color:var(--red); }
+
+  .notif-btn {
+    width:36px; height:36px;
+    background:var(--dark3); border-radius:8px; border:none;
+    cursor:pointer; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .notif-dot {
+    position:absolute; top:7px; right:7px;
+    width:6px; height:6px;
+    background:var(--red); border-radius:50%;
+    border:1.5px solid var(--dark2);
+  }
+
+  .content { flex:1; overflow-y:auto; padding:22px 28px; }
+  .content::-webkit-scrollbar { width:4px; }
+  .content::-webkit-scrollbar-thumb { background:var(--dark4); border-radius:10px; }
+
+  .screen { display:none; }
+  .screen.active { display:block; }
+
+  /* ── STATS ── */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .stat-card {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:14px; padding:18px;
+    display:flex; flex-direction:column;
+    position:relative; overflow:hidden;
+  }
+  .stat-card::after {
+    content:''; position:absolute;
+    bottom:0; left:0; right:0; height:2px;
+  }
+  .stat-card.c1::after { background:linear-gradient(90deg,var(--red),var(--red-dark)); }
+  .stat-card.c2::after { background:linear-gradient(90deg,#F59E0B,#D97706); }
+  .stat-card.c3::after { background:linear-gradient(90deg,#22C55E,#16A34A); }
+  .stat-card.c4::after { background:linear-gradient(90deg,#3B82F6,#1D4ED8); }
+
+  .stat-icon {
+    width:38px; height:38px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; margin-bottom:10px;
+  }
+  .c1 .stat-icon { background:rgba(212,43,43,0.15); }
+  .c2 .stat-icon { background:rgba(245,158,11,0.15); }
+  .c3 .stat-icon { background:rgba(34,197,94,0.15); }
+  .c4 .stat-icon { background:rgba(59,130,246,0.15); }
+
+  .stat-value { font-size:26px; font-weight:900; }
+  .stat-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .stat-change { font-size:10px; font-weight:600; margin-top:8px; display:flex; align-items:center; gap:3px; }
+  .stat-change.up { color:var(--success); }
+  .stat-change.down { color:var(--danger); }
+
+  /* ── CARDS ── */
+  .dash-row { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:20px; }
+  .card {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:14px; padding:18px;
+  }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .card-title { font-size:13px; font-weight:700; }
+  .card-link { font-size:11px; color:var(--red); cursor:pointer; font-weight:600; }
+
+  /* chart */
+  .chart-area {
+    height:120px;
+    background:linear-gradient(180deg,rgba(212,43,43,0.06) 0%,transparent 100%);
+    border-radius:10px;
+    display:flex; align-items:flex-end; padding:8px; gap:5px;
+  }
+  .bar-wrap { flex:1; display:flex; align-items:flex-end; justify-content:center; }
+  .bar {
+    width:100%; border-radius:5px 5px 0 0;
+    background:linear-gradient(180deg,var(--red) 0%,var(--red-dark) 100%);
+    opacity:0.6;
+  }
+  .bar.active { opacity:1; box-shadow:0 -3px 10px var(--red-glow); }
+  .bar-label { font-size:9px; color:var(--text-dim); text-align:center; margin-top:4px; }
+
+  /* schedule */
+  .schedule-list { display:flex; flex-direction:column; gap:8px; }
+  .schedule-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; background:var(--dark3);
+    border-radius:8px; border-right:2px solid var(--red);
+  }
+  .schedule-item.y2 { border-right-color:#F59E0B; }
+  .schedule-item.y3 { border-right-color:#22C55E; }
+  .sch-time { font-size:11px; font-weight:700; color:var(--text-muted); min-width:44px; }
+  .sch-info h4 { font-size:12px; font-weight:600; }
+  .sch-info p { font-size:10px; color:var(--text-muted); }
+  .sch-count {
+    margin-right:auto; font-size:10px; font-weight:700;
+    color:var(--red); background:rgba(212,43,43,0.15);
+    padding:2px 8px; border-radius:20px;
+  }
+
+  /* members table */
+  .member-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--border);
+  }
+  .member-row:last-child { border-bottom:none; }
+  .m-av {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
+  }
+  .m-info h4 { font-size:12px; font-weight:600; }
+  .m-info p { font-size:10px; color:var(--text-muted); }
+  .m-status { margin-right:auto; font-size:10px; font-weight:600; padding:3px 9px; border-radius:20px; }
+  .m-status.active { background:rgba(34,197,94,0.15); color:#22C55E; }
+  .m-status.exp { background:rgba(239,68,68,0.15); color:#EF4444; }
+  .m-status.freeze { background:rgba(59,130,246,0.15); color:#60A5FA; }
+
+  /* ── MEMBERS SCREEN ── */
+  .search-bar { display:flex; gap:8px; margin-bottom:14px; }
+  .search-input {
+    flex:1; display:flex; align-items:center; gap:8px;
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:8px; padding:8px 14px;
+  }
+  .search-input input {
+    border:none; outline:none;
+    font-family:'Cairo',sans-serif; font-size:13px;
+    background:transparent; flex:1; color:#fff;
+  }
+  .filter-btn {
+    display:flex; align-items:center; gap:5px; padding:8px 13px;
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:8px; font-family:'Cairo',sans-serif;
+    font-size:12px; cursor:pointer; color:var(--text-muted);
+  }
+  .members-table { background:var(--dark2); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .table-head {
+    display:grid; grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 0.6fr;
+    padding:11px 18px; background:var(--dark3);
+    font-size:11px; font-weight:700; color:var(--text-dim);
+    border-bottom:1px solid var(--border);
+  }
+  .table-row {
+    display:grid; grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 0.6fr;
+    padding:11px 18px; align-items:center;
+    border-bottom:1px solid var(--border);
+    font-size:12px; cursor:pointer; transition:background 0.12s;
+  }
+  .table-row:hover { background:var(--dark3); }
+  .table-row:last-child { border-bottom:none; }
+  .member-cell { display:flex; align-items:center; gap:9px; }
+  .t-av { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+  .t-name { font-weight:600; font-size:12px; }
+  .t-phone { font-size:10px; color:var(--text-muted); }
+  .tag { display:inline-block; font-size:10px; font-weight:600; padding:2px 9px; border-radius:20px; }
+  .tag-active { background:rgba(34,197,94,0.15); color:#22C55E; }
+  .tag-exp { background:rgba(239,68,68,0.15); color:#EF4444; }
+  .tag-freeze { background:rgba(59,130,246,0.15); color:#60A5FA; }
+  .tag-pending { background:rgba(245,158,11,0.15); color:#F59E0B; }
+  .action-dots { color:var(--text-dim); font-size:16px; cursor:pointer; }
+
+  /* ── CLASSES ── */
+  .classes-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .class-card {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:14px; padding:18px;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .class-card:hover { border-color:rgba(212,43,43,0.4); transform:translateY(-2px); }
+  .class-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+  .class-emoji { font-size:26px; }
+  .class-cap { font-size:10px; font-weight:700; color:var(--text-muted); background:var(--dark3); padding:3px 8px; border-radius:20px; }
+  .class-name { font-size:14px; font-weight:700; margin-bottom:2px; }
+  .class-trainer { font-size:11px; color:var(--text-muted); margin-bottom:10px; }
+  .class-times { display:flex; flex-direction:column; gap:4px; }
+  .time-pill { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-muted); background:var(--dark3); padding:4px 9px; border-radius:6px; }
+  .time-pill span { font-weight:600; color:#fff; }
+  .class-progress { margin-top:12px; }
+  .progress-label { display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-bottom:4px; }
+  .progress-bar { height:5px; background:var(--dark4); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:10px; background:linear-gradient(90deg,var(--red),var(--red-dark)); }
+
+  /* ── SUBSCRIPTIONS ── */
+  .plans-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+  .plan-card {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:16px; padding:22px 18px;
+    position:relative; overflow:hidden;
+  }
+  .plan-card.featured {
+    background:linear-gradient(135deg,var(--dark2) 0%,rgba(212,43,43,0.08) 100%);
+    border-color:rgba(212,43,43,0.5);
+    box-shadow:0 0 24px rgba(212,43,43,0.1);
+  }
+  .plan-badge {
+    position:absolute; top:12px; left:12px;
+    background:var(--red); color:#fff;
+    font-size:9px; font-weight:700;
+    padding:3px 10px; border-radius:20px;
+  }
+  .plan-name { font-size:13px; font-weight:700; margin-bottom:3px; }
+  .plan-duration { font-size:10px; color:var(--text-muted); margin-bottom:12px; }
+  .plan-price { font-size:30px; font-weight:900; color:var(--red); }
+  .plan-price span { font-size:12px; font-weight:400; color:var(--text-muted); }
+  .plan-features { margin-top:12px; display:flex; flex-direction:column; gap:6px; }
+  .plan-feat { font-size:11px; display:flex; align-items:center; gap:6px; color:var(--text-muted); }
+  .feat-dot { width:4px; height:4px; border-radius:50%; background:var(--red); flex-shrink:0; }
+  .subs-table { background:var(--dark2); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .subs-head {
+    display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 0.8fr;
+    padding:11px 18px; background:var(--dark3);
+    font-size:11px; font-weight:700; color:var(--text-dim);
+    border-bottom:1px solid var(--border);
+  }
+  .subs-row {
+    display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 0.8fr;
+    padding:11px 18px; align-items:center;
+    border-bottom:1px solid var(--border); font-size:12px;
+    cursor:pointer; transition:background 0.12s;
+  }
+  .subs-row:hover { background:var(--dark3); }
+  .progress-mini { width:70px; height:4px; background:var(--dark4); border-radius:10px; overflow:hidden; }
+  .progress-mini-fill { height:100%; border-radius:10px; background:linear-gradient(90deg,var(--red),var(--red-dark)); }
+
+  /* ── BOOKINGS ── */
+  .bookings-header { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .day-pill {
+    padding:7px 15px; border-radius:25px;
+    font-size:12px; font-weight:600; cursor:pointer;
+    background:var(--dark2); color:var(--text-muted);
+    border:1px solid var(--border); transition:all 0.15s;
+  }
+  .day-pill.active { background:var(--red); color:#fff; border-color:var(--red); box-shadow:0 3px 10px var(--red-glow); }
+  .bookings-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .booking-card {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:12px; padding:14px 16px;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .booking-time-block {
+    min-width:52px; text-align:center;
+    background:rgba(212,43,43,0.1); border-radius:8px; padding:7px 4px;
+    border:1px solid rgba(212,43,43,0.2);
+  }
+  .booking-time-block .t { font-size:14px; font-weight:900; color:var(--red); }
+  .booking-time-block .ampm { font-size:9px; color:var(--text-muted); }
+  .booking-info h4 { font-size:13px; font-weight:700; }
+  .booking-info p { font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .booking-members { display:flex; margin-top:8px; }
+  .bm-av {
+    width:22px; height:22px; border-radius:50%;
+    border:2px solid var(--dark2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; color:#fff;
+    margin-left:-5px;
+  }
+  .bm-av:first-child { margin-left:0; }
+  .bm-count {
+    width:22px; height:22px; border-radius:50%;
+    background:var(--dark3); border:2px solid var(--dark2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; color:var(--text-muted);
+    margin-left:-5px;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(212,43,43,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(212,43,43,0.08) 0%, transparent 50%),
+                var(--dark);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+  }
+  #login-screen.hidden { display:none; }
+
+  .login-box {
+    background:var(--dark2);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:36px 40px; width:380px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,43,43,0.1);
+  }
+  .login-logo {
+    display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:28px;
+  }
+  .login-logo-icon {
+    width:64px; height:64px;
+    background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);
+    border-radius:20px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px;
+    box-shadow:0 0 30px var(--red-glow);
+  }
+  .login-logo-text {
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .login-logo-text h2 { font-size:22px; font-weight:900; letter-spacing:2px; }
+  .login-logo-text h2 span { color:var(--red); }
+  .login-logo-text p { font-size:10px; color:var(--text-muted); letter-spacing:3px; text-transform:uppercase; margin-top:2px; }
+
+  .form-group { margin-bottom:14px; }
+  .form-group label { font-size:12px; font-weight:600; display:block; margin-bottom:5px; color:var(--text-muted); }
+  .form-input {
+    width:100%; padding:11px 14px;
+    border:1px solid var(--border); border-radius:8px;
+    font-family:'Cairo',sans-serif; font-size:13px;
+    background:var(--dark3); color:#fff;
+    outline:none; transition:border-color 0.15s;
+  }
+  .form-input:focus { border-color:var(--red); }
+  .login-btn {
+    width:100%; padding:13px;
+    background:linear-gradient(90deg,var(--red) 0%,var(--red-dark) 100%);
+    color:#fff; border:none; border-radius:10px;
+    font-family:'Cairo',sans-serif; font-size:14px; font-weight:700;
+    cursor:pointer; margin-top:6px;
+    box-shadow:0 4px 20px var(--red-glow);
+    transition:transform 0.15s;
+    letter-spacing:1px;
+  }
+  .login-btn:hover { transform:translateY(-1px); }
+  .login-footer { text-align:center; margin-top:14px; font-size:11px; color:var(--text-muted); }
+  .login-footer a { color:var(--red); font-weight:600; cursor:pointer; }
+
+  /* lightning SVG logo in sidebar */
+  .logo-svg { display:flex; align-items:center; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">⚡</div>
+      <div class="login-logo-text">
+        <h2>EMP<span>⚡</span>WER</h2>
+        <p>GYM MANAGEMENT</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>البريد الإلكتروني</label>
+      <input class="form-input" type="email" value="admin@empowergym.com">
+    </div>
+    <div class="form-group">
+      <label>كلمة المرور</label>
+      <input class="form-input" type="password" value="••••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">⚡ دخول</button>
+    <div class="login-footer">مش عارف كلمة السر؟ <a>استعادة الحساب</a></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo-box">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>EMPOWER</h1>
+        <span>GYM SYSTEM</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">الرئيسية</div>
+    <div class="nav-item active" onclick="showScreen('dashboard',this)">
+      <span class="icon">🏠</span> لوحة التحكم
+    </div>
+
+    <div class="nav-label">الإدارة</div>
+    <div class="nav-item" onclick="showScreen('members',this)">
+      <span class="icon">👥</span> الأعضاء
+      <span class="badge">247</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('classes',this)">
+      <span class="icon">🤸</span> الحصص
+    </div>
+    <div class="nav-item" onclick="showScreen('subscriptions',this)">
+      <span class="icon">💳</span> الاشتراكات
+      <span class="badge">12</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('bookings',this)">
+      <span class="icon">📅</span> الحجوزات
+    </div>
+
+    <div class="nav-label">التحليلات</div>
+    <div class="nav-item" onclick="showScreen('dashboard',this)">
+      <span class="icon">📊</span> التقارير
+    </div>
+    <div class="nav-item" onclick="showScreen('dashboard',this)">
+      <span class="icon">⚙️</span> الإعدادات
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-card">
+      <div class="admin-av">أ</div>
+      <div class="admin-info">
+        <h4>أحمد خالد</h4>
+        <span>مدير النظام</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">
+      <h2 id="page-title">لوحة التحكم</h2>
+      <p id="page-sub">الخميس، 12 يونيو 2026</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline">📤 تصدير</button>
+      <button class="btn btn-primary" onclick="handleAdd()">⚡ إضافة عضو</button>
+      <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card c1">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">247</div>
+          <div class="stat-label">إجمالي الأعضاء</div>
+          <div class="stat-change up">▲ 12 عضو هذا الشهر</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-icon">🤸</div>
+          <div class="stat-value">18</div>
+          <div class="stat-label">حصص نشطة</div>
+          <div class="stat-change up">▲ 3 حصص جديدة</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">42,800</div>
+          <div class="stat-label">إيراد الشهر (ج.م)</div>
+          <div class="stat-change up">▲ 11% عن الشهر السابق</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-value">14</div>
+          <div class="stat-label">اشتراكات تنتهي قريبًا</div>
+          <div class="stat-change down">▼ تحتاج تجديد هذا الأسبوع</div>
+        </div>
+      </div>
+
+      <div class="dash-row">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📈 الإيرادات — آخر 6 شهور</div>
+            <span class="card-link">تفاصيل</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="chart-area" id="chart"></div>
+            <div style="display:flex;gap:5px;padding:0 8px;">
+              <div style="flex:1;text-align:center;" class="bar-label">يناير</div>
+              <div style="flex:1;text-align:center;" class="bar-label">فبراير</div>
+              <div style="flex:1;text-align:center;" class="bar-label">مارس</div>
+              <div style="flex:1;text-align:center;" class="bar-label">أبريل</div>
+              <div style="flex:1;text-align:center;" class="bar-label">مايو</div>
+              <div style="flex:1;text-align:center;" class="bar-label">يونيو</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🗓️ حصص اليوم</div>
+            <span class="card-link">كل الحصص</span>
+          </div>
+          <div class="schedule-list">
+            <div class="schedule-item">
+              <div class="sch-time">7:00 ص</div>
+              <div class="sch-info"><h4>Chest & Back</h4><p>محمد علي • قاعة A</p></div>
+              <div class="sch-count">14/20</div>
+            </div>
+            <div class="schedule-item y2">
+              <div class="sch-time">9:00 ص</div>
+              <div class="sch-info"><h4>Cardio Blast</h4><p>أحمد سامي • قاعة B</p></div>
+              <div class="sch-count">20/20</div>
+            </div>
+            <div class="schedule-item y3">
+              <div class="sch-time">5:00 م</div>
+              <div class="sch-info"><h4>HIIT Training</h4><p>كريم حسن • قاعة C</p></div>
+              <div class="sch-count">8/15</div>
+            </div>
+            <div class="schedule-item">
+              <div class="sch-time">7:00 م</div>
+              <div class="sch-info"><h4>Legs & Glutes</h4><p>محمد علي • قاعة A</p></div>
+              <div class="sch-count">5/20</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 أحدث الأعضاء</div>
+          <span class="card-link" onclick="showScreen('members',null)">كل الأعضاء ←</span>
+        </div>
+        <div class="member-row">
+          <div class="m-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">م</div>
+          <div class="m-info"><h4>محمود رضا</h4><p>اشتراك شهري — Chest & Back</p></div>
+          <div class="m-status active">نشط</div>
+        </div>
+        <div class="member-row">
+          <div class="m-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ك</div>
+          <div class="m-info"><h4>كريم أيمن</h4><p>اشتراك 3 شهور — Open Gym</p></div>
+          <div class="m-status active">نشط</div>
+        </div>
+        <div class="member-row">
+          <div class="m-av" style="background:linear-gradient(135deg,#22C55E,#16A34A)">س</div>
+          <div class="m-info"><h4>سامي حسن</h4><p>اشتراك شهري — HIIT</p></div>
+          <div class="m-status exp">منتهي</div>
+        </div>
+        <div class="member-row">
+          <div class="m-av" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">ع</div>
+          <div class="m-info"><h4>عمر طارق</h4><p>اشتراك سنوي — كل الحصص</p></div>
+          <div class="m-status freeze">مجمد</div>
+        </div>
+        <div class="member-row">
+          <div class="m-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">ي</div>
+          <div class="m-info"><h4>يوسف إبراهيم</h4><p>اشتراك 6 شهور — Cardio</p></div>
+          <div class="m-status active">نشط</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="screen" id="screen-members">
+      <div class="search-bar">
+        <div class="search-input">
+          <span>🔍</span>
+          <input type="text" placeholder="ابحث باسم العضو أو رقم الهاتف...">
+        </div>
+        <button class="filter-btn">🔽 الحالة</button>
+        <button class="filter-btn">🔽 الاشتراك</button>
+        <button class="filter-btn">🔽 الحصة</button>
+      </div>
+      <div class="members-table">
+        <div class="table-head">
+          <div>العضو</div><div>الاشتراك</div><div>الانتهاء</div><div>الحصة</div><div>الحالة</div><div></div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">م</div><div><div class="t-name">محمود رضا</div><div class="t-phone">010-5555-2201</div></div></div>
+          <div>شهري</div><div>30 يونيو 26</div><div>Chest & Back</div>
+          <div><span class="tag tag-active">نشط</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ك</div><div><div class="t-name">كريم أيمن</div><div class="t-phone">012-3344-5566</div></div></div>
+          <div>3 شهور</div><div>15 أغسطس 26</div><div>Open Gym</div>
+          <div><span class="tag tag-active">نشط</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#22C55E,#16A34A)">س</div><div><div class="t-name">سامي حسن</div><div class="t-phone">011-7788-9900</div></div></div>
+          <div>شهري</div><div>5 يونيو 26</div><div>HIIT</div>
+          <div><span class="tag tag-exp">منتهي</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">ع</div><div><div class="t-name">عمر طارق</div><div class="t-phone">010-1122-3344</div></div></div>
+          <div>سنوي</div><div>1 يناير 27</div><div>كل الحصص</div>
+          <div><span class="tag tag-freeze">مجمد</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">ي</div><div><div class="t-name">يوسف إبراهيم</div><div class="t-phone">015-6677-8899</div></div></div>
+          <div>6 شهور</div><div>20 سبتمبر 26</div><div>Cardio</div>
+          <div><span class="tag tag-active">نشط</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+        <div class="table-row">
+          <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ف</div><div><div class="t-name">فارس خالد</div><div class="t-phone">010-9988-7766</div></div></div>
+          <div>شهري</div><div>18 يونيو 26</div><div>Legs & Glutes</div>
+          <div><span class="tag tag-pending">معلق</span></div>
+          <div class="action-dots">⋯</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASSES -->
+    <div class="screen" id="screen-classes">
+      <div class="classes-grid">
+        <div class="class-card">
+          <div class="class-header"><div class="class-emoji">💪</div><div class="class-cap">20 مقعد</div></div>
+          <div class="class-name">Chest & Back</div>
+          <div class="class-trainer">🏋️ محمد علي</div>
+          <div class="class-times">
+            <div class="time-pill">☀️ <span>الأحد - الثلاثاء - الخميس</span> — 7:00 ص</div>
+            <div class="time-pill">🌙 <span>الإثنين - الأربعاء</span> — 7:00 م</div>
+          </div>
+          <div class="class-progress">
+            <div class="progress-label"><span>الحجوزات</span><span>14 / 20</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+          </div>
+        </div>
+        <div class="class-card">
+          <div class="class-header"><div class="class-emoji">🔥</div><div class="class-cap">20 مقعد</div></div>
+          <div class="class-name">Cardio Blast</div>
+          <div class="class-trainer">🏋️ أحمد سامي</div>
+          <div class="class-times">
+            <div class="time-pill">☀️ <span>السبت - الإثنين - الأربعاء</span> — 9:00 ص</div>
+          </div>
+          <div class="class-progress">
+            <div class="progress-label"><span>الحجوزات</span><span>20 / 20</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="class-card">
+          <div class="class-header"><div class="class-emoji">⚡</div><div class="class-cap">15 مقعد</div></div>
+          <div class="class-name">HIIT Training</div>
+          <div class="class-trainer">🏋️ كريم حسن</div>
+          <div class="class-times">
+            <div class="time-pill">🌙 <span>يومياً</span> — 5:00 م</div>
+          </div>
+          <div class="class-progress">
+            <div class="progress-label"><span>الحجوزات</span><span>8 / 15</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:53%"></div></div>
+          </div>
+        </div>
+        <div class="class-card">
+          <div class="class-header"><div class="class-emoji">🦵</div><div class="class-cap">20 مقعد</div></div>
+          <div class="class-name">Legs & Glutes</div>
+          <div class="class-trainer">🏋️ محمد علي</div>
+          <div class="class-times">
+            <div class="time-pill">🌙 <span>الأحد - الثلاثاء - الخميس</span> — 7:00 م</div>
+          </div>
+          <div class="class-progress">
+            <div class="progress-label"><span>الحجوزات</span><span>5 / 20</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+          </div>
+        </div>
+        <div class="class-card">
+          <div class="class-header"><div class="class-emoji">🧠</div><div class="class-cap">10 مقعد</div></div>
+          <div class="class-name">Mind & Core</div>
+          <div class="class-trainer">🏋️ لينا عمر</div>
+          <div class="class-times">
+            <div class="time-pill">☀️ <span>السبت - الإثنين</span> — 10:00 ص</div>
+          </div>
+          <div class="class-progress">
+            <div class="progress-label"><span>الحجوزات</span><span>10 / 10</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="class-card" style="border:1px dashed var(--dark5);background:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
+          <div style="font-size:28px">➕</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-dim)">إضافة حصة جديدة</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTIONS -->
+    <div class="screen" id="screen-subscriptions">
+      <div class="plans-grid">
+        <div class="plan-card">
+          <div class="plan-name">🌱 اشتراك شهري</div>
+          <div class="plan-duration">30 يوم — حصة واحدة</div>
+          <div class="plan-price">400 <span>ج.م / شهر</span></div>
+          <div class="plan-features">
+            <div class="plan-feat"><div class="feat-dot"></div>دخول حصة واحدة</div>
+            <div class="plan-feat"><div class="feat-dot"></div>حجز مسبق</div>
+            <div class="plan-feat"><div class="feat-dot"></div>خزانة شخصية</div>
+          </div>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">الأكثر شيوعًا</div>
+          <div class="plan-name">⚡ اشتراك 3 شهور</div>
+          <div class="plan-duration">90 يوم — حصتان يومياً</div>
+          <div class="plan-price">950 <span>ج.م</span></div>
+          <div class="plan-features">
+            <div class="plan-feat"><div class="feat-dot"></div>حصتان يومياً</div>
+            <div class="plan-feat"><div class="feat-dot"></div>Open Gym</div>
+            <div class="plan-feat"><div class="feat-dot"></div>تجميد مرة</div>
+            <div class="plan-feat"><div class="feat-dot"></div>بروتين + مناشف</div>
+          </div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">👑 اشتراك سنوي</div>
+          <div class="plan-duration">365 يوم — كل الحصص</div>
+          <div class="plan-price">3,200 <span>ج.م / سنة</span></div>
+          <div class="plan-features">
+            <div class="plan-feat"><div class="feat-dot"></div>كل الحصص بدون حد</div>
+            <div class="plan-feat"><div class="feat-dot"></div>Open Gym 24/7</div>
+            <div class="plan-feat"><div class="feat-dot"></div>تجميد 3 مرات</div>
+            <div class="plan-feat"><div class="feat-dot"></div>جلسة PT مجانية</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">💳 اشتراكات قيد التجديد</div>
+          <span class="card-link">كل الاشتراكات</span>
+        </div>
+        <div class="subs-table">
+          <div class="subs-head"><div>العضو</div><div>نوع الاشتراك</div><div>البداية</div><div>الانتهاء</div><div>المتبقي</div><div>الحالة</div></div>
+          <div class="subs-row">
+            <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#22C55E,#16A34A)">س</div><div><div class="t-name">سامي حسن</div></div></div>
+            <div>شهري — HIIT</div><div>5 مايو</div><div>5 يونيو</div>
+            <div><div class="progress-mini"><div class="progress-mini-fill" style="width:10%"></div></div></div>
+            <div><span class="tag tag-exp">منتهي</span></div>
+          </div>
+          <div class="subs-row">
+            <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">م</div><div><div class="t-name">محمود رضا</div></div></div>
+            <div>شهري — Chest & Back</div><div>1 يونيو</div><div>30 يونيو</div>
+            <div><div class="progress-mini"><div class="progress-mini-fill" style="width:40%"></div></div></div>
+            <div><span class="tag tag-active">نشط</span></div>
+          </div>
+          <div class="subs-row">
+            <div class="member-cell"><div class="t-av" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">ع</div><div><div class="t-name">عمر طارق</div></div></div>
+            <div>سنوي — كل الحصص</div><div>1 يناير 26</div><div>1 يناير 27</div>
+            <div><div class="progress-mini"><div class="progress-mini-fill" style="width:45%"></div></div></div>
+            <div><span class="tag tag-freeze">مجمد</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="screen" id="screen-bookings">
+      <div class="bookings-header">
+        <div class="day-pill active">اليوم</div>
+        <div class="day-pill">غدًا</div>
+        <div class="day-pill">الجمعة</div>
+        <div class="day-pill">السبت</div>
+        <div class="day-pill">الأحد</div>
+      </div>
+      <div class="bookings-grid">
+        <div class="booking-card">
+          <div class="booking-time-block"><div class="t">7:00</div><div class="ampm">صباحًا</div></div>
+          <div class="booking-info">
+            <h4>💪 Chest & Back</h4>
+            <p>محمد علي • قاعة A</p>
+            <div class="booking-members">
+              <div class="bm-av" style="background:#D42B2B">م</div>
+              <div class="bm-av" style="background:#F59E0B">ك</div>
+              <div class="bm-av" style="background:#22C55E">س</div>
+              <div class="bm-count">+11</div>
+            </div>
+          </div>
+          <span class="tag tag-active" style="margin-right:auto;align-self:flex-start">14/20</span>
+        </div>
+        <div class="booking-card">
+          <div class="booking-time-block"><div class="t">9:00</div><div class="ampm">صباحًا</div></div>
+          <div class="booking-info">
+            <h4>🔥 Cardio Blast</h4>
+            <p>أحمد سامي • قاعة B</p>
+            <div class="booking-members">
+              <div class="bm-av" style="background:#F59E0B">ف</div>
+              <div class="bm-av" style="background:#3B82F6">ع</div>
+              <div class="bm-av" style="background:#D42B2B">ي</div>
+              <div class="bm-count">+17</div>
+            </div>
+          </div>
+          <span class="tag tag-exp" style="margin-right:auto;align-self:flex-start">20/20</span>
+        </div>
+        <div class="booking-card">
+          <div class="booking-time-block"><div class="t">5:00</div><div class="ampm">مساءً</div></div>
+          <div class="booking-info">
+            <h4>⚡ HIIT Training</h4>
+            <p>كريم حسن • قاعة C</p>
+            <div class="booking-members">
+              <div class="bm-av" style="background:#D42B2B">م</div>
+              <div class="bm-av" style="background:#22C55E">س</div>
+              <div class="bm-count">+6</div>
+            </div>
+          </div>
+          <span class="tag tag-active" style="margin-right:auto;align-self:flex-start">8/15</span>
+        </div>
+        <div class="booking-card">
+          <div class="booking-time-block"><div class="t">7:00</div><div class="ampm">مساءً</div></div>
+          <div class="booking-info">
+            <h4>🦵 Legs & Glutes</h4>
+            <p>محمد علي • قاعة A</p>
+            <div class="booking-members">
+              <div class="bm-av" style="background:#F59E0B">ك</div>
+              <div class="bm-av" style="background:#3B82F6">ع</div>
+              <div class="bm-count">+3</div>
+            </div>
+          </div>
+          <span class="tag tag-active" style="margin-right:auto;align-self:flex-start">5/20</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const bars = [28000, 33000, 30500, 37200, 40100, 42800];
+  const maxB = Math.max(...bars);
+  const chart = document.getElementById('chart');
+  bars.forEach((v, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bar-wrap';
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === 5 ? ' active' : '');
+    bar.style.height = (v / maxB * 100) + '%';
+    wrap.appendChild(bar);
+    chart.appendChild(wrap);
+  });
+
+  function showScreen(id, navEl) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    if (navEl) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      navEl.classList.add('active');
+    }
+    const titles = {
+      dashboard: ['لوحة التحكم','الخميس، 12 يونيو 2026'],
+      members:   ['الأعضاء','247 عضو مسجل'],
+      classes:   ['الحصص','5 حصص نشطة'],
+      subscriptions: ['الاشتراكات','إدارة الخطط والتجديدات'],
+      bookings:  ['الحجوزات','اليوم — الخميس 12 يونيو'],
+    };
+    document.getElementById('page-title').textContent = titles[id][0];
+    document.getElementById('page-sub').textContent = titles[id][1];
+  }
+
+  function doLogin() { document.getElementById('login-screen').classList.add('hidden'); }
+  function handleAdd() { alert('⚡ نافذة إضافة عضو جديد\n(ستظهر هنا في النظام الكامل)'); }
+
+  document.querySelectorAll('.day-pill').forEach(p => {
+    p.addEventListener('click', function() {
+      document.querySelectorAll('.day-pill').forEach(x => x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
