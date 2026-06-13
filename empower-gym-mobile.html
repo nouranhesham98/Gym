@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Empower Gym — تطبيق الموبايل</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --red: #D42B2B;
+    --red-light: #FF3B3B;
+    --red-dark: #A81E1E;
+    --red-glow: rgba(212,43,43,0.3);
+    --dark: #0F0F0F;
+    --dark2: #1A1A1A;
+    --dark3: #242424;
+    --dark4: #2E2E2E;
+    --border: rgba(255,255,255,0.07);
+    --text: #FFFFFF;
+    --muted: #888;
+    --dim: #555;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family:'Cairo',sans-serif;
+    background:#000;
+    display:flex; justify-content:center; align-items:center;
+    min-height:100vh;
+    padding:20px;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width:375px;
+    height:812px;
+    background:var(--dark);
+    border-radius:44px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:
+      0 0 0 10px #1a1a1a,
+      0 0 0 12px #2a2a2a,
+      0 30px 80px rgba(0,0,0,0.8),
+      0 0 40px rgba(212,43,43,0.15);
+    display:flex; flex-direction:column;
+  }
+
+  /* Notch */
+  .notch {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:120px; height:30px;
+    background:#000; border-radius:0 0 20px 20px;
+    z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    gap:8px;
+  }
+  .notch-cam { width:10px; height:10px; background:#111; border-radius:50%; border:1px solid #333; }
+  .notch-mic { width:40px; height:6px; background:#111; border-radius:10px; }
+
+  /* Status bar */
+  .status-bar {
+    height:44px; padding:0 20px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    padding-bottom:8px; flex-shrink:0;
+    color:#fff; font-size:12px; font-weight:600;
+  }
+
+  /* Screens container */
+  .screens {
+    flex:1; overflow:hidden; position:relative;
+  }
+  .screen { display:none; height:100%; overflow-y:auto; flex-direction:column; }
+  .screen.active { display:flex; }
+  .screen::-webkit-scrollbar { display:none; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    height:72px; background:var(--dark2);
+    border-top:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-around;
+    padding:0 10px; padding-bottom:8px;
+    flex-shrink:0; position:relative; z-index:50;
+  }
+  .nav-tab {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 12px; border-radius:12px; cursor:pointer;
+    transition:all 0.15s; flex:1;
+  }
+  .nav-tab .t-icon { font-size:20px; }
+  .nav-tab .t-label { font-size:9px; font-weight:600; color:var(--muted); }
+  .nav-tab.active .t-label { color:var(--red); }
+  .nav-tab .t-dot {
+    width:4px; height:4px; border-radius:50%;
+    background:transparent; margin-top:1px;
+  }
+  .nav-tab.active .t-dot { background:var(--red); }
+
+  /* ── LOGIN ── */
+  #screen-login {
+    background: radial-gradient(ellipse at 50% 20%, rgba(212,43,43,0.2) 0%, transparent 60%), var(--dark);
+    justify-content:center; padding:30px 24px;
+  }
+  .login-top { text-align:center; margin-bottom:36px; }
+  .login-icon {
+    width:72px; height:72px; margin:0 auto 14px;
+    background:linear-gradient(135deg,var(--red),var(--red-dark));
+    border-radius:22px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:36px;
+    box-shadow:0 0 40px var(--red-glow);
+  }
+  .login-top h1 { font-size:24px; font-weight:900; letter-spacing:2px; }
+  .login-top h1 span { color:var(--red); }
+  .login-top p { font-size:11px; color:var(--muted); letter-spacing:3px; margin-top:4px; }
+
+  .form-group { margin-bottom:14px; }
+  .form-group label { font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:6px; }
+  .form-input {
+    width:100%; padding:14px 16px;
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:12px; color:#fff;
+    font-family:'Cairo',sans-serif; font-size:14px; outline:none;
+    transition:border-color 0.15s;
+  }
+  .form-input:focus { border-color:var(--red); }
+  .login-btn-m {
+    width:100%; padding:15px;
+    background:linear-gradient(90deg,var(--red),var(--red-dark));
+    color:#fff; border:none; border-radius:14px;
+    font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
+    cursor:pointer; margin-top:8px;
+    box-shadow:0 6px 24px var(--red-glow);
+    letter-spacing:1px;
+  }
+  .forgot-link { text-align:center; margin-top:14px; font-size:12px; color:var(--muted); }
+  .forgot-link a { color:var(--red); font-weight:600; }
+
+  /* ── HOME ── */
+  .home-header {
+    padding:14px 20px 0;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .home-greeting h3 { font-size:13px; color:var(--muted); font-weight:400; }
+  .home-greeting h2 { font-size:18px; font-weight:900; }
+  .home-av {
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg,var(--red),var(--red-dark));
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:700;
+    box-shadow:0 0 14px var(--red-glow);
+  }
+
+  /* hero banner */
+  .hero-banner {
+    margin:16px; border-radius:18px; padding:20px;
+    background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);
+    box-shadow:0 8px 28px var(--red-glow);
+    position:relative; overflow:hidden;
+  }
+  .hero-banner::after {
+    content:'⚡';
+    position:absolute; right:-10px; bottom:-20px;
+    font-size:100px; opacity:0.15;
+  }
+  .hero-banner h3 { font-size:11px; opacity:0.8; letter-spacing:1px; text-transform:uppercase; }
+  .hero-banner h2 { font-size:22px; font-weight:900; margin:4px 0 12px; }
+  .hero-stat { display:flex; gap:20px; }
+  .hs { }
+  .hs .v { font-size:24px; font-weight:900; }
+  .hs .l { font-size:10px; opacity:0.75; }
+
+  /* stats row */
+  .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 16px 16px; }
+  .stat-mini {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:14px; padding:14px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .stat-mini .icon { font-size:20px; }
+  .stat-mini .val { font-size:20px; font-weight:900; }
+  .stat-mini .lbl { font-size:10px; color:var(--muted); }
+  .stat-mini .chg { font-size:10px; font-weight:600; }
+  .chg.up { color:var(--success); }
+  .chg.dn { color:var(--danger); }
+
+  /* section headers */
+  .sec-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; margin-bottom:10px;
+  }
+  .sec-title { font-size:14px; font-weight:700; }
+  .sec-link { font-size:11px; color:var(--red); font-weight:600; }
+
+  /* today classes */
+  .classes-scroll {
+    display:flex; gap:10px; padding:0 16px; overflow-x:auto;
+    padding-bottom:4px; margin-bottom:18px;
+  }
+  .classes-scroll::-webkit-scrollbar { display:none; }
+  .class-pill {
+    min-width:160px; background:var(--dark2);
+    border:1px solid var(--border); border-radius:14px; padding:14px;
+    flex-shrink:0; cursor:pointer; transition:all 0.15s;
+  }
+  .class-pill:hover { border-color:rgba(212,43,43,0.4); }
+  .class-pill .cp-time { font-size:10px; color:var(--red); font-weight:700; margin-bottom:4px; }
+  .class-pill .cp-name { font-size:13px; font-weight:700; }
+  .class-pill .cp-trainer { font-size:10px; color:var(--muted); margin-top:2px; }
+  .class-pill .cp-spots {
+    margin-top:10px; font-size:10px; font-weight:600;
+    color:var(--muted); display:flex; align-items:center; gap:4px;
+  }
+  .cp-bar { flex:1; height:4px; background:var(--dark4); border-radius:10px; overflow:hidden; }
+  .cp-fill { height:100%; background:var(--red); border-radius:10px; }
+
+  /* recent members */
+  .member-list-m { padding:0 16px; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .member-card-m {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:12px; padding:12px 14px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .mc-av {
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:700; color:#fff; flex-shrink:0;
+  }
+  .mc-info h4 { font-size:13px; font-weight:700; }
+  .mc-info p { font-size:11px; color:var(--muted); }
+  .mc-tag { margin-right:auto; font-size:10px; font-weight:600; padding:3px 9px; border-radius:20px; }
+  .tc-active { background:rgba(34,197,94,0.15); color:#22C55E; }
+  .tc-exp { background:rgba(239,68,68,0.15); color:#EF4444; }
+  .tc-freeze { background:rgba(59,130,246,0.15); color:#60A5FA; }
+
+  /* ── MEMBERS SCREEN ── */
+  .screen-header {
+    padding:14px 20px; display:flex; align-items:center; gap:10px;
+    border-bottom:1px solid var(--border); flex-shrink:0;
+  }
+  .screen-header h2 { font-size:16px; font-weight:700; }
+  .screen-header .count { font-size:11px; color:var(--muted); margin-right:auto; }
+  .search-m {
+    margin:12px 16px;
+    display:flex; align-items:center; gap:8px;
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:10px; padding:10px 14px; flex-shrink:0;
+  }
+  .search-m input {
+    border:none; outline:none; background:transparent;
+    font-family:'Cairo',sans-serif; font-size:13px; color:#fff; flex:1;
+  }
+  .filter-row {
+    display:flex; gap:8px; padding:0 16px; margin-bottom:12px; overflow-x:auto; flex-shrink:0;
+  }
+  .filter-row::-webkit-scrollbar { display:none; }
+  .filter-chip {
+    padding:5px 12px; border-radius:20px; font-size:11px; font-weight:600;
+    background:var(--dark2); border:1px solid var(--border);
+    color:var(--muted); cursor:pointer; white-space:nowrap;
+    transition:all 0.12s;
+  }
+  .filter-chip.active { background:var(--red); color:#fff; border-color:var(--red); }
+
+  .members-scroll { flex:1; overflow-y:auto; padding:0 16px; display:flex; flex-direction:column; gap:8px; padding-bottom:16px; }
+  .members-scroll::-webkit-scrollbar { display:none; }
+  .member-row-m {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:12px; padding:12px 14px;
+    display:flex; align-items:center; gap:12px;
+    cursor:pointer; transition:background 0.12s;
+  }
+  .member-row-m:hover { background:var(--dark3); }
+  .mr-av {
+    width:42px; height:42px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:700; color:#fff; flex-shrink:0;
+  }
+  .mr-info h4 { font-size:13px; font-weight:700; }
+  .mr-info p { font-size:11px; color:var(--muted); }
+  .mr-right { margin-right:auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .tag-m { font-size:10px; font-weight:600; padding:2px 9px; border-radius:20px; }
+  .mr-date { font-size:10px; color:var(--dim); }
+
+  /* ── BOOKINGS ── */
+  .day-scroll {
+    display:flex; gap:8px; padding:12px 16px; overflow-x:auto; flex-shrink:0;
+  }
+  .day-scroll::-webkit-scrollbar { display:none; }
+  .day-btn {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:8px 14px; border-radius:12px; cursor:pointer;
+    background:var(--dark2); border:1px solid var(--border);
+    transition:all 0.15s; min-width:52px;
+  }
+  .day-btn.active { background:var(--red); border-color:var(--red); box-shadow:0 4px 14px var(--red-glow); }
+  .day-btn .day-name { font-size:10px; font-weight:600; color:var(--muted); }
+  .day-btn.active .day-name { color:rgba(255,255,255,0.8); }
+  .day-btn .day-num { font-size:16px; font-weight:900; }
+  .day-btn.active .day-num { color:#fff; }
+
+  .bookings-list { flex:1; overflow-y:auto; padding:0 16px; display:flex; flex-direction:column; gap:10px; padding-bottom:16px; }
+  .bookings-list::-webkit-scrollbar { display:none; }
+  .booking-row-m {
+    background:var(--dark2); border:1px solid var(--border);
+    border-radius:14px; padding:14px;
+    display:flex; gap:12px; align-items:flex-start;
+    cursor:pointer; transition:background 0.12s;
+  }
+  .booking-row-m:hover { background:var(--dark3); }
+  .bk-time {
+    min-width:50px; text-align:center;
+    background:rgba(212,43,43,0.1); border:1px solid rgba(212,43,43,0.2);
+    border-radius:10px; padding:6px 4px;
+  }
+  .bk-time .t { font-size:13px; font-weight:900; color:var(--red); }
+  .bk-time .ap { font-size:9px; color:var(--muted); }
+  .bk-info h4 { font-size:13px; font-weight:700; }
+  .bk-info p { font-size:11px; color:var(--muted); margin-top:2px; }
+  .bk-avs { display:flex; margin-top:8px; }
+  .bk-av {
+    width:22px; height:22px; border-radius:50%;
+    border:2px solid var(--dark2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; color:#fff;
+    margin-left:-6px;
+  }
+  .bk-av:first-child { margin-left:0; }
+  .bk-more {
+    width:22px; height:22px; border-radius:50%;
+    background:var(--dark3); border:2px solid var(--dark2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; color:var(--muted);
+    margin-left:-6px;
+  }
+  .bk-cap { margin-right:auto; align-self:flex-start; font-size:10px; font-weight:600; padding:3px 9px; border-radius:20px; }
+
+  /* ── PROFILE ── */
+  .profile-top {
+    background:linear-gradient(135deg,var(--dark2) 0%,rgba(212,43,43,0.08) 100%);
+    padding:24px 20px; text-align:center;
+    border-bottom:1px solid var(--border);
+  }
+  .profile-av-big {
+    width:72px; height:72px; border-radius:50%; margin:0 auto 10px;
+    background:linear-gradient(135deg,var(--red),var(--red-dark));
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px; font-weight:700;
+    box-shadow:0 0 24px var(--red-glow);
+  }
+  .profile-top h2 { font-size:18px; font-weight:900; }
+  .profile-top p { font-size:12px; color:var(--muted); }
+
+  .profile-stats { display:grid; grid-template-columns:1fr 1fr 1fr; padding:16px; gap:10px; border-bottom:1px solid var(--border); }
+  .ps-item { text-align:center; }
+  .ps-item .v { font-size:18px; font-weight:900; color:var(--red); }
+  .ps-item .l { font-size:10px; color:var(--muted); }
+
+  .profile-menu { padding:12px 16px; display:flex; flex-direction:column; gap:4px; }
+  .menu-item {
+    display:flex; align-items:center; gap:12px;
+    padding:13px 14px; background:var(--dark2);
+    border:1px solid var(--border); border-radius:12px;
+    cursor:pointer; transition:background 0.12s;
+  }
+  .menu-item:hover { background:var(--dark3); }
+  .menu-item .mi-icon { font-size:18px; }
+  .menu-item .mi-text { font-size:13px; font-weight:600; }
+  .menu-item .mi-arr { margin-right:auto; color:var(--dim); }
+  .logout-btn {
+    margin:8px 16px;
+    padding:14px; background:rgba(212,43,43,0.1);
+    border:1px solid rgba(212,43,43,0.3); border-radius:12px;
+    color:var(--red); font-family:'Cairo',sans-serif;
+    font-size:13px; font-weight:700; cursor:pointer;
+    width:calc(100% - 32px);
+  }
+
+  /* home scroll */
+  .home-scroll { flex:1; overflow-y:auto; }
+  .home-scroll::-webkit-scrollbar { display:none; }
+
+  /* add fab */
+  .fab {
+    position:fixed;
+    bottom:88px; left:50%;
+    transform:translateX(-50%) translateX(-158px);
+    width:48px; height:48px;
+    background:var(--red); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; cursor:pointer;
+    box-shadow:0 4px 20px var(--red-glow);
+    z-index:200; display:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <!-- Notch -->
+  <div class="notch">
+    <div class="notch-cam"></div>
+    <div class="notch-mic"></div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>⚡ EMPOWER</span>
+    <span>📶 🔋</span>
+  </div>
+
+  <div class="screens">
+
+    <!-- LOGIN -->
+    <div class="screen active" id="screen-login">
+      <div class="login-top">
+        <div class="login-icon">⚡</div>
+        <h1>EMP<span>⚡</span>WER</h1>
+        <p>GYM MANAGEMENT</p>
+      </div>
+      <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input class="form-input" type="email" value="admin@empowergym.com">
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input class="form-input" type="password" value="••••••••">
+      </div>
+      <button class="login-btn-m" onclick="mLogin()">⚡ دخول</button>
+      <div class="forgot-link">مش عارف كلمة السر؟ <a>استعادة الحساب</a></div>
+    </div>
+
+    <!-- HOME -->
+    <div class="screen" id="screen-home">
+      <div class="home-header">
+        <div class="home-greeting">
+          <h3>أهلاً،</h3>
+          <h2>أحمد 👋</h2>
+        </div>
+        <div class="home-av">أ</div>
+      </div>
+
+      <div class="home-scroll">
+        <div class="hero-banner" style="margin-top:14px;">
+          <h3>اليوم — الخميس 12 يونيو</h3>
+          <h2>EMPOWER GYM ⚡</h2>
+          <div class="hero-stat">
+            <div class="hs"><div class="v">247</div><div class="l">عضو نشط</div></div>
+            <div class="hs"><div class="v">42.8K</div><div class="l">إيراد الشهر</div></div>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-mini">
+            <div class="icon">🤸</div>
+            <div class="val">18</div>
+            <div class="lbl">حصص نشطة</div>
+            <div class="chg up">▲ 3 جديدة</div>
+          </div>
+          <div class="stat-mini">
+            <div class="icon">⚠️</div>
+            <div class="val">14</div>
+            <div class="lbl">تنتهي قريبًا</div>
+            <div class="chg dn">▼ تحتاج تجديد</div>
+          </div>
+        </div>
+
+        <div class="sec-header">
+          <div class="sec-title">🗓️ حصص اليوم</div>
+          <div class="sec-link" onclick="mTab('bookings')">الكل ←</div>
+        </div>
+        <div class="classes-scroll">
+          <div class="class-pill">
+            <div class="cp-time">7:00 ص</div>
+            <div class="cp-name">💪 Chest & Back</div>
+            <div class="cp-trainer">محمد علي</div>
+            <div class="cp-spots"><div class="cp-bar"><div class="cp-fill" style="width:70%"></div></div> 14/20</div>
+          </div>
+          <div class="class-pill">
+            <div class="cp-time">9:00 ص</div>
+            <div class="cp-name">🔥 Cardio Blast</div>
+            <div class="cp-trainer">أحمد سامي</div>
+            <div class="cp-spots"><div class="cp-bar"><div class="cp-fill" style="width:100%"></div></div> 20/20</div>
+          </div>
+          <div class="class-pill">
+            <div class="cp-time">5:00 م</div>
+            <div class="cp-name">⚡ HIIT Training</div>
+            <div class="cp-trainer">كريم حسن</div>
+            <div class="cp-spots"><div class="cp-bar"><div class="cp-fill" style="width:53%"></div></div> 8/15</div>
+          </div>
+          <div class="class-pill">
+            <div class="cp-time">7:00 م</div>
+            <div class="cp-name">🦵 Legs & Glutes</div>
+            <div class="cp-trainer">محمد علي</div>
+            <div class="cp-spots"><div class="cp-bar"><div class="cp-fill" style="width:25%"></div></div> 5/20</div>
+          </div>
+        </div>
+
+        <div class="sec-header">
+          <div class="sec-title">👥 أحدث الأعضاء</div>
+          <div class="sec-link" onclick="mTab('members')">الكل ←</div>
+        </div>
+        <div class="member-list-m">
+          <div class="member-card-m">
+            <div class="mc-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">م</div>
+            <div class="mc-info"><h4>محمود رضا</h4><p>اشتراك شهري</p></div>
+            <div class="mc-tag tc-active">نشط</div>
+          </div>
+          <div class="member-card-m">
+            <div class="mc-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ك</div>
+            <div class="mc-info"><h4>كريم أيمن</h4><p>اشتراك 3 شهور</p></div>
+            <div class="mc-tag tc-active">نشط</div>
+          </div>
+          <div class="member-card-m">
+            <div class="mc-av" style="background:linear-gradient(135deg,#22C55E,#16A34A)">س</div>
+            <div class="mc-info"><h4>سامي حسن</h4><p>اشتراك شهري</p></div>
+            <div class="mc-tag tc-exp">منتهي</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="screen" id="screen-members">
+      <div class="screen-header">
+        <h2>👥 الأعضاء</h2>
+        <span class="count">247 عضو</span>
+        <span style="font-size:20px;cursor:pointer;color:var(--red)">＋</span>
+      </div>
+      <div class="search-m">
+        <span>🔍</span>
+        <input type="text" placeholder="ابحث باسم العضو...">
+      </div>
+      <div class="filter-row">
+        <div class="filter-chip active">الكل</div>
+        <div class="filter-chip">نشط</div>
+        <div class="filter-chip">منتهي</div>
+        <div class="filter-chip">مجمد</div>
+        <div class="filter-chip">معلق</div>
+      </div>
+      <div class="members-scroll">
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">م</div>
+          <div class="mr-info"><h4>محمود رضا</h4><p>Chest & Back • شهري</p></div>
+          <div class="mr-right"><span class="tag-m tc-active">نشط</span><span class="mr-date">30 يونيو</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ك</div>
+          <div class="mr-info"><h4>كريم أيمن</h4><p>Open Gym • 3 شهور</p></div>
+          <div class="mr-right"><span class="tag-m tc-active">نشط</span><span class="mr-date">15 أغسطس</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#22C55E,#16A34A)">س</div>
+          <div class="mr-info"><h4>سامي حسن</h4><p>HIIT • شهري</p></div>
+          <div class="mr-right"><span class="tag-m tc-exp">منتهي</span><span class="mr-date">5 يونيو</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">ع</div>
+          <div class="mr-info"><h4>عمر طارق</h4><p>كل الحصص • سنوي</p></div>
+          <div class="mr-right"><span class="tag-m tc-freeze">مجمد</span><span class="mr-date">1 يناير 27</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">ي</div>
+          <div class="mr-info"><h4>يوسف إبراهيم</h4><p>Cardio • 6 شهور</p></div>
+          <div class="mr-right"><span class="tag-m tc-active">نشط</span><span class="mr-date">20 سبتمبر</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">ف</div>
+          <div class="mr-info"><h4>فارس خالد</h4><p>Legs & Glutes • شهري</p></div>
+          <div class="mr-right"><span class="tag-m" style="background:rgba(245,158,11,0.15);color:#F59E0B">معلق</span><span class="mr-date">18 يونيو</span></div>
+        </div>
+        <div class="member-row-m">
+          <div class="mr-av" style="background:linear-gradient(135deg,#D42B2B,#A81E1E)">ه</div>
+          <div class="mr-info"><h4>هاني سعيد</h4><p>HIIT • 3 شهور</p></div>
+          <div class="mr-right"><span class="tag-m tc-active">نشط</span><span class="mr-date">10 يوليو</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="screen" id="screen-bookings">
+      <div class="screen-header">
+        <h2>📅 الحجوزات</h2>
+        <span class="count">اليوم</span>
+      </div>
+      <div class="day-scroll">
+        <div class="day-btn active"><div class="day-name">خميس</div><div class="day-num">12</div></div>
+        <div class="day-btn"><div class="day-name">جمعة</div><div class="day-num">13</div></div>
+        <div class="day-btn"><div class="day-name">سبت</div><div class="day-num">14</div></div>
+        <div class="day-btn"><div class="day-name">أحد</div><div class="day-num">15</div></div>
+        <div class="day-btn"><div class="day-name">إثنين</div><div class="day-num">16</div></div>
+      </div>
+      <div class="bookings-list">
+        <div class="booking-row-m">
+          <div class="bk-time"><div class="t">7:00</div><div class="ap">ص</div></div>
+          <div class="bk-info">
+            <h4>💪 Chest & Back</h4>
+            <p>محمد علي • قاعة A</p>
+            <div class="bk-avs">
+              <div class="bk-av" style="background:#D42B2B">م</div>
+              <div class="bk-av" style="background:#F59E0B">ك</div>
+              <div class="bk-av" style="background:#22C55E">س</div>
+              <div class="bk-more">+11</div>
+            </div>
+          </div>
+          <span class="bk-cap" style="background:rgba(34,197,94,0.15);color:#22C55E">14/20</span>
+        </div>
+        <div class="booking-row-m">
+          <div class="bk-time"><div class="t">9:00</div><div class="ap">ص</div></div>
+          <div class="bk-info">
+            <h4>🔥 Cardio Blast</h4>
+            <p>أحمد سامي • قاعة B</p>
+            <div class="bk-avs">
+              <div class="bk-av" style="background:#F59E0B">ف</div>
+              <div class="bk-av" style="background:#3B82F6">ع</div>
+              <div class="bk-more">+18</div>
+            </div>
+          </div>
+          <span class="bk-cap" style="background:rgba(239,68,68,0.15);color:#EF4444">20/20</span>
+        </div>
+        <div class="booking-row-m">
+          <div class="bk-time"><div class="t">5:00</div><div class="ap">م</div></div>
+          <div class="bk-info">
+            <h4>⚡ HIIT Training</h4>
+            <p>كريم حسن • قاعة C</p>
+            <div class="bk-avs">
+              <div class="bk-av" style="background:#D42B2B">م</div>
+              <div class="bk-av" style="background:#22C55E">س</div>
+              <div class="bk-more">+6</div>
+            </div>
+          </div>
+          <span class="bk-cap" style="background:rgba(34,197,94,0.15);color:#22C55E">8/15</span>
+        </div>
+        <div class="booking-row-m">
+          <div class="bk-time"><div class="t">7:00</div><div class="ap">م</div></div>
+          <div class="bk-info">
+            <h4>🦵 Legs & Glutes</h4>
+            <p>محمد علي • قاعة A</p>
+            <div class="bk-avs">
+              <div class="bk-av" style="background:#F59E0B">ك</div>
+              <div class="bk-av" style="background:#3B82F6">ع</div>
+              <div class="bk-more">+3</div>
+            </div>
+          </div>
+          <span class="bk-cap" style="background:rgba(34,197,94,0.15);color:#22C55E">5/20</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="screen-profile">
+      <div class="profile-top">
+        <div class="profile-av-big">أ</div>
+        <h2>أحمد خالد</h2>
+        <p>مدير النظام — Empower Gym</p>
+      </div>
+      <div class="profile-stats">
+        <div class="ps-item"><div class="v">247</div><div class="l">أعضاء</div></div>
+        <div class="ps-item"><div class="v">18</div><div class="l">حصص</div></div>
+        <div class="ps-item"><div class="v">42.8K</div><div class="l">إيراد</div></div>
+      </div>
+      <div class="profile-menu">
+        <div class="menu-item"><div class="mi-icon">👤</div><div class="mi-text">الملف الشخصي</div><div class="mi-arr">←</div></div>
+        <div class="menu-item"><div class="mi-icon">📊</div><div class="mi-text">التقارير الشهرية</div><div class="mi-arr">←</div></div>
+        <div class="menu-item"><div class="mi-icon">🔔</div><div class="mi-text">الإشعارات</div><div class="mi-arr">←</div></div>
+        <div class="menu-item"><div class="mi-icon">💳</div><div class="mi-text">الاشتراكات</div><div class="mi-arr">←</div></div>
+        <div class="menu-item"><div class="mi-icon">⚙️</div><div class="mi-text">إعدادات النظام</div><div class="mi-arr">←</div></div>
+        <div class="menu-item"><div class="mi-icon">❓</div><div class="mi-text">المساعدة والدعم</div><div class="mi-arr">←</div></div>
+      </div>
+      <button class="logout-btn">🚪 تسجيل الخروج</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav" id="bottom-nav" style="display:none;">
+    <div class="nav-tab active" onclick="mTab('home')">
+      <div class="t-icon">🏠</div>
+      <div class="t-label">الرئيسية</div>
+      <div class="t-dot"></div>
+    </div>
+    <div class="nav-tab" onclick="mTab('members')">
+      <div class="t-icon">👥</div>
+      <div class="t-label">الأعضاء</div>
+      <div class="t-dot"></div>
+    </div>
+    <div class="nav-tab" onclick="mTab('bookings')">
+      <div class="t-icon">📅</div>
+      <div class="t-label">الحجوزات</div>
+      <div class="t-dot"></div>
+    </div>
+    <div class="nav-tab" onclick="mTab('profile')">
+      <div class="t-icon">👤</div>
+      <div class="t-label">حسابي</div>
+      <div class="t-dot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function mLogin() {
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+    document.getElementById('bottom-nav').style.display = 'flex';
+  }
+
+  function mTab(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const tabs = ['home','members','bookings','profile'];
+    const idx = tabs.indexOf(id);
+    if(idx >= 0) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  }
+
+  document.querySelectorAll('.day-btn').forEach(b => {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('.day-btn').forEach(x => x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.addEventListener('click', function() {
+      document.querySelectorAll('.filter-chip').forEach(x => x.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
